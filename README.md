@@ -13,18 +13,15 @@ This setup creates a production-like Kubernetes environment for learning purpose
 ## Prerequisites
 
 - Windows 11 machine with at least 16GB RAM and 4+ CPU cores
-- [VirtualBox latest version] (https://www.virtualbox.org/wiki/Downloads)
-- [Ubuntu Server 22.04 LTS ISO] (https://ubuntu.com/download/alternative-downloads)
+- [VirtualBox latest version](https://www.virtualbox.org/wiki/Downloads)
+- [Ubuntu Server 22.04 LTS ISO](https://ubuntu.com/download/alternative-downloads)
 - At least 100GB free disk space
 
 ## Architecture
 
 ```
-                             ┌─────────────┐
-                             │    Host     │
-                             │ Windows 11  │
-                             └──────┬──────┘
-                                    │
+Host    
+Windows 11 
                         ┌───────────┴───────────┐
                         │    VirtualBox         │
                         │    Host Network       │
