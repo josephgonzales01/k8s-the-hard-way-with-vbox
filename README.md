@@ -13,8 +13,8 @@ This setup creates a production-like Kubernetes environment for learning purpose
 ## Prerequisites
 
 - Windows 11 machine with at least 16GB RAM and 4+ CPU cores
-- VirtualBox (latest version)
-- Ubuntu Server 22.04 LTS ISO
+- [VirtualBox latest version] (https://www.virtualbox.org/wiki/Downloads)
+- [Ubuntu Server 22.04 LTS ISO] (https://ubuntu.com/download/alternative-downloads)
 - At least 100GB free disk space
 
 ## Architecture
@@ -73,7 +73,7 @@ This setup creates a production-like Kubernetes environment for learning purpose
 
 ### Steps:
 1. Create a base VM with:
-   - OS: Ubuntu 22.04 LTS
+   - OS: Ubuntu Server 22.04 LTS
    - RAM: 2048MB
    - Disk: 20GB VDI, dynamically allocated
    - Network: Adapter 1 as NAT, Adapter 2 as Host-only (vboxnet0)
