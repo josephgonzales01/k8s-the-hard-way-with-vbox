@@ -70,7 +70,7 @@ Windows 11
 
 ### Steps:
 1. Create a base VM with:
-   - OS: Ubuntu Server 22.04 LTS
+   - OS: Ubuntu 22.04 LTS
    - RAM: 2048MB
    - Disk: 20GB VDI, dynamically allocated
    - Network: Adapter 1 as NAT, Adapter 2 as Host-only (vboxnet0)
@@ -197,13 +197,20 @@ Clone the base VM 5 times with the following configurations:
 ## Step 5: Set Up the Load Balancer (HAProxy)
 
 ### Steps:
+**Execute these commands only on k8s-lb (192.168.56.10)**
+
 1. Install HAProxy on k8s-lb:
    ```bash
    sudo apt install -y haproxy
    ```
 
 2. Configure HAProxy to balance traffic between control plane nodes by editing `/etc/haproxy/haproxy.cfg`:
-   ```
+   ```bash
+   # Back up the original configuration
+   sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
+   
+   # Create new configuration file
+   sudo bash -c 'cat > /etc/haproxy/haproxy.cfg' << 'EOF'
    global
        log /dev/log local0
        log /dev/log local1 notice
@@ -234,12 +241,19 @@ Clone the base VM 5 times with the following configurations:
        option tcp-check
        server k8s-control1 192.168.56.11:6443 check fall 3 rise 2
        server k8s-control2 192.168.56.12:6443 check fall 3 rise 2
+   EOF
    ```
 
 3. Enable and restart HAProxy service:
    ```bash
    sudo systemctl enable haproxy
    sudo systemctl restart haproxy
+   ```
+
+4. Verify HAProxy is running and listening:
+   ```bash
+   sudo systemctl status haproxy
+   netstat -tuln | grep 6443
    ```
 
 ### Why:
@@ -251,6 +265,13 @@ Clone the base VM 5 times with the following configurations:
 ## Step 6: Configure All Nodes
 
 ### Steps:
+**Execute these commands on all 5 VMs (load balancer, both control planes, and both workers)**
+
+You can use any of the access methods described in the "How to Execute Commands on Nodes" section:
+- Direct console access through VirtualBox
+- SSH from your Windows host: `ssh username@192.168.56.XX`
+- SSH from another VM: `ssh username@192.168.56.XX`
+
 1. Disable swap:
    ```bash
    sudo swapoff -a
@@ -316,6 +337,8 @@ Clone the base VM 5 times with the following configurations:
 ## Step 7: Install Kubernetes Components on All Nodes
 
 ### Steps:
+**Execute these commands on all 5 VMs (load balancer, both control planes, and both workers)**
+
 1. Add Kubernetes repository and install Kubernetes components:
    ```bash
    sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -334,6 +357,8 @@ Clone the base VM 5 times with the following configurations:
 ## Step 8: Configure the First Control Plane Node
 
 ### Steps:
+**Execute these commands only on k8s-control1 (192.168.56.11)**
+
 1. Create kubeadm configuration for HA setup on k8s-control1:
    ```bash
    cat <<EOF > kubeadm-config.yaml
@@ -351,6 +376,7 @@ Clone the base VM 5 times with the following configurations:
    ```bash
    sudo kubeadm init --config=kubeadm-config.yaml --upload-certs
    ```
+   This will take a few minutes to complete. The output is very important - it contains the join commands for other nodes.
 
 3. Set up kubeconfig for the admin user:
    ```bash
@@ -368,6 +394,7 @@ Clone the base VM 5 times with the following configurations:
    - The output will contain two join commands:
      - One for control plane nodes (with --control-plane flag)
      - One for worker nodes
+   - Copy these commands to a text file on your host machine - you'll need them for the next steps
 
 ### Why:
 - Kubeadm config specifies control plane endpoint (load balancer)
@@ -379,7 +406,9 @@ Clone the base VM 5 times with the following configurations:
 ## Step 9: Join the Second Control Plane Node
 
 ### Steps:
-1. Join the second control plane node using the control plane join command on k8s-control2:
+**Execute these commands only on k8s-control2 (192.168.56.12)**
+
+1. Join the second control plane node using the control plane join command captured from the output of Step 8:
    ```bash
    # Example (replace with actual values from step 8 output):
    sudo kubeadm join k8s-lb:6443 \
@@ -396,6 +425,11 @@ Clone the base VM 5 times with the following configurations:
    sudo chown $(id -u):$(id -g) $HOME/.kube/config
    ```
 
+3. Verify this node has joined the cluster:
+   ```bash
+   kubectl get nodes
+   ```
+
 ### Why:
 - Multiple control plane nodes provide high availability
 - The second node synchronizes etcd data with the first node
@@ -404,13 +438,21 @@ Clone the base VM 5 times with the following configurations:
 ## Step 10: Join Worker Nodes
 
 ### Steps:
-1. Join both worker nodes (k8s-worker1 and k8s-worker2) using the worker join command:
+**Execute these commands on both worker nodes (k8s-worker1 - 192.168.56.21 and k8s-worker2 - 192.168.56.22)**
+
+1. Join worker nodes using the worker join command captured from the output of Step 8:
    ```bash
    # Example (replace with actual values from step 8 output):
    sudo kubeadm join k8s-lb:6443 \
        --token abcdef.0123456789abcdef \
        --discovery-token-ca-cert-hash sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
    ```
+
+2. Verify nodes joined successfully by running this command on any control plane node:
+   ```bash
+   kubectl get nodes
+   ```
+   You should see both worker nodes listed with "Ready" status (may take a minute or two)
 
 ### Why:
 - Worker nodes execute the actual workloads (pods)
@@ -420,7 +462,9 @@ Clone the base VM 5 times with the following configurations:
 ## Step 11: Verify the Cluster
 
 ### Steps:
-1. Check node status on any control plane node:
+**Execute these commands on any control plane node (k8s-control1 or k8s-control2)**
+
+1. Check node status:
    ```bash
    kubectl get nodes -o wide
    ```
@@ -443,6 +487,17 @@ Clone the base VM 5 times with the following configurations:
    # Check the service
    kubectl get svc nginx
    ```
+   Take note of the assigned NodePort (e.g., 32XXX)
+
+4. Test accessing the deployed service:
+   ```bash
+   # Get the IP of a worker node
+   kubectl get nodes -o wide
+   
+   # Access the service from any node (replace NODE_IP and NODE_PORT with actual values)
+   curl http://NODE_IP:NODE_PORT
+   ```
+   You should see the Nginx welcome page HTML
 
 ### Why:
 - Verifies that all nodes joined successfully
@@ -453,6 +508,8 @@ Clone the base VM 5 times with the following configurations:
 ## Step 12: Install Additional Kubernetes Components (Optional)
 
 ### Steps:
+**Execute these commands on any control plane node (k8s-control1 or k8s-control2)**
+
 1. Install Dashboard (optional):
    ```bash
    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
@@ -485,7 +542,14 @@ Clone the base VM 5 times with the following configurations:
    # Start proxy to access dashboard
    kubectl proxy
    ```
-   Access the dashboard at: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+   
+   To access the dashboard:
+   - From your Windows host, set up port forwarding to the control plane node:
+     ```
+     ssh -L 8001:localhost:8001 username@192.168.56.11
+     ```
+   - Then access the dashboard at: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+   - Use the token from the previous step to log in
 
 2. Install Metrics Server (optional):
    ```bash
