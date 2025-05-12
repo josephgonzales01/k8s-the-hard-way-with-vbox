@@ -1,6 +1,6 @@
 # Kubernetes Multi-Node Cluster Setup Guide
 
-This guide walks through setting up a Kubernetes cluster on VirtualBox VMs hosted on Windows 11, inspired by Kelsey Hightower's "Kubernetes The Hard Way" but adapted for a local environment. The setup includes 5 VMs: 2 control plane nodes, 2 worker nodes, and 1 load balancer.
+This guide walks through setting up a Kubernetes cluster on VirtualBox VMs hosted on Windows 11, inspired by Kelsey Hightower's [Kubernetes The Hard Way](https://github.com/kelseyhightower/kubernetes-the-hard-way) but adapted for a local environment VMs. The setup includes 5 VMs: 2 control plane nodes, 2 worker nodes, and 1 load balancer.
 
 ## Overview
 
