@@ -110,12 +110,18 @@ Windows 11
    sudo netplan apply
    sudo shutdown -h now
    ```
+6. Disable swap:
+   ```bash
+   sudo swapoff -a
+   sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+   ```
 
 ### Why:
 - Minimal installation reduces overhead
 - Static IPs ensure consistent networking for Kubernetes components
 - Updated packages ensure security and compatibility
 - Base tools (curl, ssh) are needed for further configuration
+- Swap must be disabled for kubelet to work properly
 
 ## Step 4: Clone VMs
 
@@ -275,13 +281,7 @@ You can use any of the access methods described in the "How to Execute Commands 
 - SSH from your Windows host: `ssh username@192.168.56.XX`
 - SSH from another VM: `ssh username@192.168.56.XX`
 
-1. Disable swap:
-   ```bash
-   sudo swapoff -a
-   sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
-   ```
-
-2. Load kernel modules (overlay, br_netfilter):
+1. Load kernel modules (overlay, br_netfilter):
    ```bash
    cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
    overlay
@@ -292,7 +292,7 @@ You can use any of the access methods described in the "How to Execute Commands 
    sudo modprobe br_netfilter
    ```
 
-3. Set network parameters:
+2. Set network parameters:
    ```bash
    cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
    net.bridge.bridge-nf-call-iptables = 1
@@ -303,7 +303,7 @@ You can use any of the access methods described in the "How to Execute Commands 
    sudo sysctl --system
    ```
 
-4. Install containerd as container runtime:
+3. Install containerd as container runtime:
    ```bash
    sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -312,7 +312,7 @@ You can use any of the access methods described in the "How to Execute Commands 
    sudo apt install -y containerd.io
    ```
 
-5. Configure containerd:
+4. Configure containerd:
    ```bash
    sudo mkdir -p /etc/containerd
    containerd config default | sudo tee /etc/containerd/config.toml
@@ -321,7 +321,7 @@ You can use any of the access methods described in the "How to Execute Commands 
    sudo systemctl enable containerd
    ```
 
-6. Update /etc/hosts with all node IPs:
+5. Update /etc/hosts with all node IPs:
    ```bash
    echo "192.168.56.10 k8s-lb" | sudo tee -a /etc/hosts
    echo "192.168.56.11 k8s-control1" | sudo tee -a /etc/hosts
@@ -331,7 +331,6 @@ You can use any of the access methods described in the "How to Execute Commands 
    ```
 
 ### Why:
-- Swap must be disabled for kubelet to work properly
 - Kernel modules are required for container networking and overlay filesystems
 - Network parameters allow proper packet forwarding and filtering
 - Containerd is the recommended container runtime for Kubernetes
