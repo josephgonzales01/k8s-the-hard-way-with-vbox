@@ -87,13 +87,14 @@ Windows 11
 
 ### Steps:
 1. Start the Base VM and attach the Ubuntu ISO (Settings → Storage → Optical Drive)
-2. Update packages and install basic tools:
+2. When prompted select Minimal installation
+3. Update packages and install basic tools:
    ```bash
    sudo apt update
    sudo apt upgrade -y
    sudo apt install -y curl openssh-server net-tools
    ```
-3. Configure static IP on second network interface (edit /etc/netplan/00-installer-config.yaml):
+4. Configure static IP on second network interface (edit /etc/netplan/00-installer-config.yaml):
    ```yaml
    network:
      version: 2
@@ -104,7 +105,7 @@ Windows 11
          dhcp4: false
          addresses: [192.168.56.10/24]
    ```
-4. Apply network configuration and shut down:
+5. Apply network configuration and shut down:
    ```bash
    sudo netplan apply
    sudo shutdown -h now
