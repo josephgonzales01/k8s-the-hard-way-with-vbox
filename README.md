@@ -124,25 +124,48 @@ Windows 11
    chmod 600 ~/.ssh/authorized_keys
    ```
 
-5. Configure static IP on second network interface (edit /etc/netplan/00-installer-config.yaml):
+5. Configure static IP on second network interface:
 
-   ```yaml
-   network:
-     version: 2
-     ethernets:
-       enp0s3:
-         dhcp4: true
-       enp0s8:
-         dhcp4: false
-         addresses: [192.168.56.10/24]
-   ```
+   Newer Ubuntu versions (22.04+) may use different netplan configuration filenames. Follow these steps:
 
-   > **Note:** Verify your actual interface names with `ip addr show` as they may appear different from enp0s3/enp0s8
+   1. Identify the correct network interfaces (typically enp0s3 for NAT, enp0s8 for host-only, but may vary)
+      ```bash
+      ip addr show
+      ```
+   2. Check existing netplan files
+
+      ```bash
+      ls /etc/netplan/
+      ```
+
+      Common filenames in newer versions:
+
+      - 00-installer-config.yaml (if using server installer)
+      - 50-cloud-init.yaml (if using cloud image)
+      - 01-netcfg.yaml (older versions)
+
+   3. Edit netplan file
+
+      ```yaml
+      network:
+      version: 2
+      ethernets:
+        enp0s3: # NAT interface (typically first adapter)
+          dhcp4: true
+        enp0s8: # Host-only interface (typically second adapter)
+          dhcp4: false
+          addresses: [192.168.56.10/24]
+          optional: true # Recommended to prevent boot delays
+      ```
 
 6. Apply network configuration:
 
    ```bash
+   # 4. Apply the configuration
    sudo netplan apply
+
+   # 5. Verify the IP assignment
+   ip addr show enp0s8
    ```
 
 7. Disable swap (for Kubernetes requirements):
@@ -199,11 +222,15 @@ Windows 11
 12. Install Kubernetes components:
 
     ```bash
-    sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-    sudo apt update
-    sudo apt install -y kubelet kubeadm kubectl
-    sudo apt-mark hold kubelet kubeadm kubectl
+      sudo apt-get update && \
+      sudo apt-get install -y apt-transport-https ca-certificates curl && \
+      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
+      echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
+      sudo apt-get update && \
+      sudo apt-get install -y kubelet kubeadm kubectl && \
+      sudo apt-mark hold kubelet kubeadm kubectl && \
+      echo "Kubernetes components installed successfully!" && \
+      kubeadm version && kubectl version --client && kubelet --version
     ```
 
 13. Take a snapshot of your base VM before shutdown:
