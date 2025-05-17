@@ -55,7 +55,10 @@ Windows 11
 
 ## Step 1: Set Up the VirtualBox Network
 
-#### This should already configured out of box.
+### Before You Begin
+
+- Verify VirtualBox virtualization is enabled in BIOS
+- Disable Windows Hyper-V if present (can conflict with VirtualBox)
 
 ### Steps:
 
@@ -791,6 +794,7 @@ You can use any of the access methods described in the "How to Execute Commands 
      sudo haproxy -c -f /etc/haproxy/haproxy.cfg
      ```
    - Check etcd cluster health:
+
      ```bash
      sudo ETCDCTL_API=3 etcdctl \
        --cacert=/etc/kubernetes/pki/etcd/ca.crt \
@@ -806,6 +810,7 @@ You can use any of the access methods described in the "How to Execute Commands 
        --endpoints=https://127.0.0.1:2379 \
        endpoint health
      ```
+
    - Ensure sufficient resources for control plane nodes:
      ```bash
      free -m
@@ -836,6 +841,7 @@ You can use any of the access methods described in the "How to Execute Commands 
      ```
 
 6. **Certificate issues with control plane join**:
+
    - If certificate key expired or is invalid:
 
      ```bash
