@@ -84,7 +84,7 @@ Windows 11
 ## Step 3: Install Ubuntu on Base VM
 
 ### Steps:
-1. Install Ubuntu with minimal settings
+1. Start the Base VM and attach the Ubuntu ISO (Settings → Storage → Optical Drive)
 2. Update packages and install basic tools:
    ```bash
    sudo apt update
