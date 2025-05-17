@@ -73,7 +73,9 @@ Windows 11
    - OS: Ubuntu 22.04 LTS
    - RAM: 2048MB
    - Disk: 20GB VDI, dynamically allocated
-   - Network: Adapter 1 as NAT, Adapter 2 as Host-only (vboxnet0)
+   - Network:
+      * Adapter 1 as NAT (added by default)
+      * Add Adapter 2 as Host-only (vboxnet0), mode Allow VMs
 
 ### Why:
 - Using a template saves time when creating multiple similar VMs
