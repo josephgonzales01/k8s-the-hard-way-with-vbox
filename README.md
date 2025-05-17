@@ -53,9 +53,9 @@ Windows 11
 ```
 
 ## Step 1: Set Up the VirtualBox Network
-
+#### This should already configured out of box.
 ### Steps:
-1. Open VirtualBox and go to File > Host Network Manager
+1. Open VirtualBox and go to File > Tools > Network Manager
 2. Create a new host-only network (vboxnet0)
    - IP address: 192.168.56.1
    - Subnet mask: 255.255.255.0
