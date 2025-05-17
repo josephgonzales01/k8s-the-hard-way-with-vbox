@@ -101,6 +101,7 @@ Windows 11
 2. During installation:
 
    - Create a consistent user account (e.g., "k8sadmin") with a secure password
+   - When prompted for Hostname or Servername use anyname (e.g k8s-template, k8s-temp-name etc) this will be overwritten later on step 4
    - Enable "Install OpenSSH server" when prompted
    - Select standard system utilities
 
