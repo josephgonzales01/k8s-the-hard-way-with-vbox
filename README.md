@@ -137,7 +137,7 @@ Windows 11
       ```bash
       ls /etc/netplan/
       ```
-
+      <a name="netplan-filenames"></a>
       Common filenames in newer versions:
 
       - 00-installer-config.yaml (if using server installer)
@@ -265,7 +265,7 @@ Clone the base VM 5 times with the following configurations:
      MAC Address Policy: Generate new MAC addresses for all network adapters >
      Clone type: Full clone > Clone
      ```
-   - After starting, Update static IP in netplan config: file name might differ see [common filenames](#L141)
+   - After starting, Update static IP in netplan config: file name might differ see [common filenames](#netplan-filenames)
      ```bash
      sudo nano /etc/netplan/00-installer-config.yaml
      # Change IP to 192.168.56.10/24
