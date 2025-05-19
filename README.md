@@ -265,11 +265,7 @@ Clone the base VM 5 times with the following configurations:
      MAC Address Policy: Generate new MAC addresses for all network adapters >
      Clone type: Full clone > Clone
      ```
-   - After starting, update hostname:
-     ```bash
-     sudo hostnamectl set-hostname k8s-lb
-     ```
-   - Update static IP in netplan config:
+   - After starting, Update static IP in netplan config: file name might differ see [common filenames](#L141)
      ```bash
      sudo nano /etc/netplan/00-installer-config.yaml
      # Change IP to 192.168.56.10/24
