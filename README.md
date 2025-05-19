@@ -124,7 +124,7 @@ Windows 11
    chmod 600 ~/.ssh/authorized_keys
    ```
 
-5. Configure static IP on second network interface:
+5. Configure static IP on second network interface: <a name="configure-netplan"></a>
 
    Newer Ubuntu versions (22.04+) may use different netplan configuration filenames. Follow these steps:
 
@@ -137,8 +137,7 @@ Windows 11
       ```bash
       ls /etc/netplan/
       ```
-      <a name="netplan-filenames"></a>
-      Common filenames in newer versions:
+     Common filenames in newer versions:
 
       - 00-installer-config.yaml (if using server installer)
       - 50-cloud-init.yaml (if using cloud image)
@@ -155,7 +154,6 @@ Windows 11
         enp0s8: # Host-only interface (typically second adapter)
           dhcp4: false
           addresses: [192.168.56.10/24]
-          optional: true # Recommended to prevent boot delays
       ```
 
 6. Apply network configuration:
@@ -265,7 +263,7 @@ Clone the base VM 5 times with the following configurations:
      MAC Address Policy: Generate new MAC addresses for all network adapters >
      Clone type: Full clone > Clone
      ```
-   - After starting, Update static IP in netplan config: file name might differ see [common filenames](#netplan-filenames)
+   - After starting, Update static IP in netplan config: file name might differ see [common filenames](#configure-netplan)
      ```bash
      sudo nano /etc/netplan/00-installer-config.yaml
      # Change IP to 192.168.56.10/24
