@@ -137,7 +137,8 @@ Windows 11
       ```bash
       ls /etc/netplan/
       ```
-     Common filenames in newer versions:
+
+      Common filenames in newer versions:
 
       - 00-installer-config.yaml (if using server installer)
       - 50-cloud-init.yaml (if using cloud image)
@@ -327,10 +328,12 @@ Clone the base VM 5 times with the following configurations:
    ```bash
    # From each VM, SSH to each other VM once to add to known hosts
    # Example from k8s-control1:
-   ssh k8sadmin@192.168.56.10 exit
-   ssh k8sadmin@192.168.56.12 exit
-   ssh k8sadmin@192.168.56.21 exit
-   ssh k8sadmin@192.168.56.22 exit
+   # Connect to all other nodes once to add them to known_hosts
+   ssh k8sadmin@192.168.56.10 exit  # k8s-lb
+   ssh k8sadmin@192.168.56.11 exit  # k8s-control1
+   ssh k8sadmin@192.168.56.12 exit  # k8s-control2
+   ssh k8sadmin@192.168.56.21 exit  # k8s-worker1
+   ssh k8sadmin@192.168.56.22 exit  # k8s-worker2
    ```
 
 ### Why:
