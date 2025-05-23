@@ -249,7 +249,7 @@ Windows 11
 
 - SSH server allows remote management of VMs
 - Static IPs ensure consistent networking for Kubernetes components
-- 00-installer-config.yaml takes precedence over netplan config files.
+- 00-installer-config.yaml takes precedence over other netplan config files.
 - Updated packages ensure security and compatibility
 - Base tools (curl, ssh) are needed for further configuration
 - SSH key setup allows password-less authentication between nodes
