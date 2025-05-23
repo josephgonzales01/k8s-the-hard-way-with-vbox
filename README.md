@@ -132,17 +132,12 @@ Windows 11
       ```bash
       ip addr show
       ```
-   2. Check existing netplan files
+   2. Remove all Netplan configs and create a new one:
 
       ```bash
-      ls /etc/netplan/
+      sudo rm -f /etc/netplan/*.yaml
+      sudo nano /etc/netplan/00-installer-config.yaml
       ```
-
-      Common filenames in newer versions:
-
-      - 00-installer-config.yaml (if using server installer)
-      - 50-cloud-init.yaml (if using cloud image)
-      - 01-netcfg.yaml (older versions)
 
    3. Edit netplan file
 
@@ -153,19 +148,31 @@ Windows 11
         enp0s3: # NAT interface (typically first adapter)
           dhcp4: true
         enp0s8: # Host-only interface (typically second adapter)
-          dhcp4: false
-          addresses: [192.168.56.10/24]
+          dhcp4: false # disable auto ip assignment
+          addresses: [192.168.56.10/24] # manually assign static ip
       ```
 
-6. Apply network configuration:
+6. Apply and verify network configuration:
 
-   ```bash
-   # 4. Apply the configuration
-   sudo netplan apply
+   1. apply new static ip
+      ```bash
+      sudo netplan apply
+      sudo reboot
+      ```
+   2. verify static IP persist
 
-   # 5. Verify the IP assignment
-   ip addr show enp0s8
-   ```
+      ```bash
+      ip addr show enp0s8
+      ```
+
+   3. (Optional) Only if enp0s8 IP resets after reboot
+
+      ```bash
+      # Disable Cloud-Init network overrides
+      echo "network: {config: disabled}" | sudo tee /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+      sudo cloud-init clean
+      sudo netplan apply
+      ```
 
 7. Disable swap (for Kubernetes requirements):
 
@@ -242,6 +249,7 @@ Windows 11
 
 - SSH server allows remote management of VMs
 - Static IPs ensure consistent networking for Kubernetes components
+- 00-installer-config.yaml takes precedence over netplan config files.
 - Updated packages ensure security and compatibility
 - Base tools (curl, ssh) are needed for further configuration
 - SSH key setup allows password-less authentication between nodes
@@ -340,7 +348,7 @@ Clone the base VM 5 times with the following configurations:
 
 - Different hostnames and IPs allow easy identification of each node
 - Control planes need more resources for managing cluster state
-- Workers need resources for running workloads
+- Assigning static IPs (192.168.56.XX) prevents DHCP-induced chaos (e.g., nodes losing connectivity after IP changes).
 - Load balancer needs fewer resources as it only proxies traffic
 - SSH known hosts configuration prevents interactive prompts during automated operations
 
