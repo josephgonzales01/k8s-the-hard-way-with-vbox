@@ -484,11 +484,7 @@ You can use any of the access methods described
 - This step is critical for a functional cluster where nodes communicate seamlessly by hostname.
 - Snapshots provide recovery points before cluster initialization
 
-## Step 7: Install Kubernetes Components on All Nodes
-
-### Skip this step as components were already installed on the base VM in Step 3.
-
-## Step 8: Configure the First Control Plane Node
+## Step 7: Configure the First Control Plane Node
 
 ### Steps:
 
@@ -563,7 +559,7 @@ You can use any of the access methods described
 - Saving join commands securely is critical as they contain authentication tokens
 - Taking a snapshot provides a recovery point
 
-## Step 9: Join the Second Control Plane Node
+## Step 8: Join the Second Control Plane Node
 
 ### Steps:
 
@@ -615,7 +611,7 @@ You can use any of the access methods described
 - Secure token transfer is important for cluster security
 - Taking a snapshot provides a recovery point
 
-## Step 10: Join Worker Nodes
+## Step 9: Join Worker Nodes
 
 ### Steps:
 
@@ -658,7 +654,7 @@ You can use any of the access methods described
 - Multiple workers provide capacity and fault tolerance
 - Taking snapshots provides recovery points
 
-## Step 11: Verify the Cluster
+## Step 10: Verify the Cluster
 
 ### Steps:
 
@@ -714,7 +710,7 @@ You can use any of the access methods described
 - Testing with a deployment ensures the cluster can schedule and run containers
 - Ensures cluster is operational before deploying actual workloads
 
-## Step 12: Install Additional Kubernetes Components (Optional)
+## Step 11: Install Additional Kubernetes Components (Optional)
 
 ### Steps:
 
