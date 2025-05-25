@@ -362,6 +362,9 @@ Clone the base VM 5 times with the following configurations:
 
    ```bash
    sudo apt install -y haproxy
+
+   # Verify installation, should indicate active and running
+   sudo systemctl status haproxy
    ```
 
 2. Configure HAProxy to balance traffic between control plane nodes by editing `/etc/haproxy/haproxy.cfg`:
@@ -369,7 +372,9 @@ Clone the base VM 5 times with the following configurations:
    ```bash
    # Back up the original configuration
    sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
+   ```
 
+   ```bash
    # Create new configuration file
    sudo bash -c 'cat > /etc/haproxy/haproxy.cfg' << 'EOF'
    global
