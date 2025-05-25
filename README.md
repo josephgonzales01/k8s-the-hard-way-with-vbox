@@ -417,19 +417,19 @@ Clone the base VM 5 times with the following configurations:
    sudo systemctl restart haproxy
    ```
 
-4. Verify HAProxy is running and listening:
+4. Verify HAProxy is running and listening to correct ip and port:
 
    ```bash
    sudo systemctl status haproxy
+   # it should be listening to 192.168.56.10:6443
    netstat -tuln | grep 6443
    ```
 
-5. Take a snapshot of the load balancer VM:
-   ```
-   # Shutdown the VM
+5. Take a snapshot of the load balancer VM and shutdown:
+   - In VirtualBox Manager, right-click on k8s-lb VM and select "Snapshots" > "Take Snapshot" and name it "HAProxy Configured"
+   ```bash
    sudo shutdown -h now
    ```
-   In VirtualBox Manager, right-click on k8s-lb VM and select "Snapshots" > "Take Snapshot" and name it "HAProxy Configured"
 
 ### Why:
 
@@ -439,16 +439,16 @@ Clone the base VM 5 times with the following configurations:
 - Makes the control plane horizontally scalable and fault-tolerant
 - Snapshot provides a recovery point in case of issues with the load balancer
 
-## Step 6: Configure All Nodes
+## Step 6: Configure Hostname Resolution on All Nodes
 
 ### Steps:
 
-**Execute these commands on all 5 VMs (load balancer, both control planes, and both workers)**
+**Bootup and execute these commands on all 5 VMs (load balancer, both control planes, and both workers)**
 
-You can use any of the access methods described in the "How to Execute Commands on Nodes" section:
+You can use any of the access methods described
 
-- Direct console access through VirtualBox
-- SSH from your Windows host: `ssh k8sadmin@192.168.56.XX`
+- Direct to each VMs terminal
+- SSH from your Windows host cmd or through putty: `ssh k8sadmin@192.168.56.XX`
 - SSH from another VM: `ssh k8sadmin@192.168.56.XX`
 
 1. Update /etc/hosts with all node IPs:
@@ -470,16 +470,18 @@ You can use any of the access methods described in the "How to Execute Commands 
    Ensure your interfaces match what's expected in your netplan configuration
 
 3. Take a snapshot of each VM after configuration:
-   ```bash
-   sudo shutdown -h now
-   ```
-   In VirtualBox Manager, take snapshots of each VM named "Base Configuration Complete"
+
+- In VirtualBox Manager, take snapshots of each VM named "Base Configuration Complete"
+
+  ```bash
+  sudo shutdown -h now
+  ```
 
 ### Why:
 
 - /etc/hosts ensures nodes can resolve each other by hostname
 - Network verification confirms proper connectivity
-- Most setup work was already done in the base VM (Step 3)
+- This step is critical for a functional cluster where nodes communicate seamlessly by hostname.
 - Snapshots provide recovery points before cluster initialization
 
 ## Step 7: Install Kubernetes Components on All Nodes
